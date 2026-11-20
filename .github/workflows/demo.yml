@@ -1,4 +1,4 @@
-name: Build Basic Catalog Storybook
+name: Build, export and test the A2UI Storybook
 on:
   push:
   pull_request:
@@ -11,12 +11,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm install
+          cache: npm
+      - run: npm ci
       - run: npm run typecheck
+      # build-storybook -> catalog:basic -> catalog:inspect -> catalog:export -> catalog:verify (incl. snapshot drift)
       - run: npm run demo:export
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: a2ui-storybook-and-catalogs
+          name: a2ui-storybook-catalogs-and-reports
           path: |
             storybook-static/
             a2ui-catalog/
+            playwright-report/

@@ -3,16 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12" },
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build -o storybook-static",
+    "typecheck": "tsc --noEmit",
     "catalog:basic": "node scripts/sync-basic.mjs",
-    "catalog:export": "node scripts/export-extension.mjs",
+    "catalog:inspect": "node scripts/export-extension.mjs inspect",
+    "catalog:export": "node scripts/export-extension.mjs all",
+    "catalog:export:one": "node scripts/export-extension.mjs single",
     "catalog:verify": "node scripts/verify-catalogs.mjs",
-    "inspect:storybook": "node scripts/export-extension.mjs inspect",
-    "demo:export": "npm run build-storybook && npm run catalog:basic && npm run catalog:export && npm run catalog:verify",
-    "typecheck": "tsc --noEmit"
+    "catalog:snapshot": "node scripts/snapshot-catalogs.mjs",
+    "catalog:show": "node scripts/show-schema.mjs",
+    "inspect:storybook": "npm run catalog:inspect",
+    "demo:export": "npm run build-storybook && npm run catalog:basic && npm run catalog:inspect && npm run catalog:export && npm run catalog:verify",
+    "test:e2e": "playwright test --project=e2e",
+    "screenshots": "playwright test --project=evidence"
   },
   "dependencies": {
     "@a2ui/markdown-it": "0.2.2",
@@ -23,6 +31,7 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@storybook/addon-docs": "10.6.0",
     "@storybook/react-vite": "10.6.0",
     "@types/node": "22.20.5",
@@ -36,6 +45,8 @@
   },
   "overrides": {
     "dompurify": "3.4.17",
-    "@a2ui/markdown-it": { "@a2ui/web_core": "$@a2ui/web_core" }
+    "@a2ui/markdown-it": {
+      "@a2ui/web_core": "$@a2ui/web_core"
+    }
   }
 }

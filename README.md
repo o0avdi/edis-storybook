@@ -1,68 +1,118 @@
 # A2UI Basic Catalog in Storybook
 
-**Purpose:** demonstrate how a small set of **official A2UI primitives** can be composed by an agent into a complex application, using the exact November budget example from the capstone showcase as a concrete result.
+**Purpose:** show how a small set of **official A2UI primitives** can be composed by an agent into a complete
+application (the November budget example from the capstone showcase), and how a team adds **its own** primitives
+through our Storybook → A2UI exporter.
 
-This project deliberately **does not create** `BudgetDashboard`, `StatCard`, `BudgetRow`, etc. as application-specific reusable UI components. The budget dashboard is an **A2UI `createSurface` message** that composes `Text`, `Row`, `Column`, `Card`, `Button`, and `TextField`, rendered by the official A2UI React/web SDK.
+This project deliberately does **not** create `BudgetDashboard`, `StatCard`, `BudgetRow`, etc. The budget dashboard is
+one A2UI `createSurface` message that composes `Text`, `Row`, `Column`, `Card`, `Button` and `TextField`, rendered by
+the official A2UI React/web SDK.
 
-Source references:
-- Original budget composition: https://github.com/o0avdi/a2ui-showcase-demo/blob/feature/personal-budget-demo/server/providers/budget-sample.ts
+Sources:
+- Budget composition reference: [`budget-sample.ts`](https://github.com/o0avdi/a2ui-showcase-demo/blob/feature/personal-budget-demo/server/providers/budget-sample.ts)
 - Official A2UI Basic Catalog: https://a2ui.org/concepts/catalogs/
-- Capstone Storybook exporter: https://github.com/o0avdi/a2ui-storybook-exporter
+- Capstone exporter: https://github.com/o0avdi/a2ui-storybook-exporter (pinned to `142dd7b`)
+
+![Budget composition at 1920×1080](docs/screenshots/after/11-budget-1920x1080.png)
 
 ## Quick start
 
-Requires Node.js 24 recommended (minimum 22.12), npm, Git, and internet for the initial installation.
+Node.js 24 recommended (minimum 22.12), npm, Git. Commands are written for PowerShell and work the same in bash.
 
-```sh
-npm install
+```powershell
+npm ci
+npm run storybook          # http://localhost:6006
+```
+
+Sidebar order (built for a two-minute demo):
+
+1. **Start Here / Welcome**: the route and a table of where each JSON artifact comes from.
+2. **Start Here / Official Basic Catalog**: searchable explorer for the SDK's 18 components and 14 functions:
+   property tables (type, required, default, description), highlighted JSON, copy buttons, the complete raw catalog.
+3. **Basic Catalog / Content · Layout · Interactive**: 16 official components, each **rendered by the SDK** from a
+   `createSurface` message, with purposeful variants, user-level controls, a live data-model readout and docs pages.
+4. **Composed Example / November Budget**: the composition, with a side-by-side `createSurface` JSON view.
+5. **Exporter / Generated Catalogs** and **Exporter / Source Primitives**: our exporter's output for new React
+   primitives (`StatusBadge`, `MetricLabel`, `ProgressIndicator`).
+
+## How the Basic Catalog stories work (and what they are not)
+
+- Every preview goes through one internal harness (`src/basic/BasicSurface.tsx`): the SDK's `MessageProcessor` with
+  `STRICT_VALIDATION` and the official `basicCatalog`, rendered by `<A2uiSurface>` from `@a2ui/react`. No Basic Catalog
+  widget is re-implemented. Styling uses only the SDK's documented `--a2ui-*` theme tokens (`src/styles.css`).
+- **Controls are preview controls.** Each story's `build(args)` turns args into an A2UI message. Rows in the
+  *A2UI properties* group map 1:1 to official schema properties: their descriptions, enum options and defaults are
+  read from `basicCatalog.toJson()` (`src/basic/schema.ts`), so they cannot drift from the SDK. Rows in the
+  *Preview setup* group only shape the demo (e.g. a Button's child `Text`, or the initial value behind a binding).
+- The harness props (`message`, `onAction`) never appear in Controls or docs.
+- **Actions:** SDK button events reach Storybook's native Actions panel through a `fn()` spy, logged as
+  `onAction: ["save_budget", { name, surfaceId, sourceComponentId, timestamp, context }]`.
+- **Live bindings:** interactive stories show an *SDK data model · live* panel fed by `dataModel.subscribe()`, so
+  dragging a Slider or typing in a TextField visibly updates the bound value.
+- Each docs page shows the live SDK render, the controls, **the A2UI message for the current controls**, and the
+  **official schema table** for that component.
+- SDK preview stories are tagged `!manifest`, so Storybook's components manifest (the exporter's input) contains only
+  the real React source primitives.
+- `Video` and `AudioPlayer` appear in the explorer only, because they need external media URLs.
+
+## Exporter demo
+
+The exporter needs a **static** build (`storybook-static/manifests/components.json`), even while `npm run storybook`
+is running. Prebuild before presenting so the live command is instant:
+
+```powershell
+# terminal 1
 npm run storybook
+
+# terminal 2
+npm run demo:export        # build-storybook → catalog:basic → catalog:inspect → catalog:export → catalog:verify
 ```
 
-Open http://localhost:6006.
+**Clean live command** (one component, strict default policy, real CLI):
 
-Explore in this order:
-
-1. **Start Here / Official catalog schema**: browse the SDK's *18 official Basic Catalog component schemas* and its 14 functions. These come from `basicCatalog.toJson()`.
-2. **Basic Catalog / Primitives**: individual `Text`, `Card`, `Row`, `Column`, `Button`, `TextField`, `CheckBox`, `ChoicePicker`, `Slider`, `Tabs`, etc. are **actually rendered** from small `createSurface` messages using official SDK implementations. The Storybook story code is a *harness*, not a replacement implementation of these primitives.
-3. **Agent Composition / November budget**: the same six basic components compose a more advanced screen. The example is based on the original sample's deterministic JSON builder, including editing and selecting categories. It is **not a live AI call**. The JSON button shows the message the A2UI renderer receives.
-4. **Exporter Extension / StatusBadge**: a deliberately small **new** primitive. Unlike the built-in SDK components, `StatusBadge` is a real React source component with Storybook docgen metadata, and our exporter can convert it to its **own** custom A2UI catalog definition.
-
-## Two kinds of catalog output (important for demo honesty)
-
-In another terminal:
-
-```sh
-npm run demo:export
+```powershell
+Remove-Item -Recurse -Force a2ui-catalog/live -ErrorAction SilentlyContinue   # --out must be new or empty
+npx storybook-a2ui export --storybook storybook-static --components ProgressIndicator `
+  --catalog-id https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1 --out a2ui-catalog/live
 ```
 
-The command creates:
+Or `npm run catalog:export:one`, which clears its output folder, prints that exact command, and runs it.
+Then show the JSON:
+
+```powershell
+npm run catalog:show -- ProgressIndicator     # one exported component schema
+npm run catalog:show -- --extension           # complete multi-component exported catalog
+npm run catalog:show -- --report              # exported / blocked summary
+npm run catalog:show -- --official Button     # official SDK schema, labeled as such
+```
+
+### Artifacts and provenance
 
 | File | Where the JSON actually came from |
 | --- | --- |
-| `a2ui-catalog/basic/catalog.json` | **Official** catalog serialized from `@a2ui/web_core` (`basicCatalog.toJson()`), *not* created by our exporter. |
-| `storybook-static/manifests/components.json` | Storybook's source-component metadata, enabled by `features.componentsManifest: true`. |
-| `a2ui-catalog/extension/catalog.json` | **Our exporter**, applied to the new primitive `StatusBadge` via its actual React/Storybook metadata. |
-| `a2ui-catalog/extension/export-report.json` | Our exporter's validation and compatibility report for `StatusBadge`. |
+| `a2ui-catalog/basic/catalog.json` | **Official SDK** catalog, serialized by `basicCatalog.toJson()`. Not generated by our exporter. |
+| `storybook-static/manifests/components.json` | **Storybook** (`features.componentsManifest: true`). Lists `StatusBadge`, `MetricLabel`, `ProgressIndicator`. |
+| `a2ui-catalog/extension/catalog.json` + `export-report.json` | **Our exporter**, 3 components (`--components StatusBadge,MetricLabel,ProgressIndicator`). |
+| `a2ui-catalog/progress-indicator/catalog.json` + `export-report.json` | **Our exporter**, one component. |
+| `catalog-snapshots/**` | **Pre-generated** copies of the above, committed as an offline fallback and shown in Storybook. See `catalog-snapshots/README.md`. |
 
-The verification script requires at least the expected SDK Basic Catalog components, an exported `StatusBadge` schema, and a passing A2UI v1.0 validation status for the extension.
+`npm run catalog:verify` checks that:
 
-Use the individual commands when troubleshooting:
+- the official catalog is intact;
+- each export ran with the strict `unmappedEvents: fail` policy and exported exactly the requested components;
+- each catalog re-validates against the pinned A2UI v1.0 schemas;
+- sample component bodies are accepted and broken ones are rejected;
+- no exported name collides with an official component;
+- the committed snapshots still match a fresh export.
 
-```sh
-npm run build-storybook
-npm run catalog:basic
-npm run inspect:storybook
-npm run catalog:export
-npm run catalog:verify
-```
+### Why not run the exporter on the Basic Catalog?
 
-### Why not run the exporter on the default Basic Catalog?
-
-The **official Basic Catalog already exists as a rich schema** describing component children, actions, bindings, validators, arrays, functions, and more. The SDK's Basic components are web-rendered implementations, not ordinary local React source components with flat Storybook-documented props. Storybook can **display** them through an SDK preview harness, but that does not mean Storybook's docgen has their authoritative source contracts.
-
-Our current exporter (`storybook-a2ui`, prototype v0.1) is specifically a **Storybook-manifest → A2UI component-contract converter**. It does not parse SDK A2UI schemas, and it intentionally blocks unsupported composition and action prop types. Attempting to re-export the Basic Catalog from Storybook props would lose important protocol semantics. Doing so would be misleading and unnecessary.
-
-**Correct demonstration story:**
+The official Basic Catalog already exists as a rich schema describing children, actions, bindings, validators, arrays
+and functions. The SDK's Basic components are web-rendered implementations, not local React source components with
+flat Storybook-documented props. Storybook can **display** them through the SDK harness, but its docgen does not hold
+their authoritative contracts. The exporter (prototype v0.1) converts Storybook manifests of **source components** and
+intentionally blocks events, children, arrays and objects. Re-exporting the Basic Catalog from Storybook props would
+lose protocol semantics and would be misleading.
 
 ```
 Official A2UI Basic Catalog (already provided by SDK)
@@ -79,38 +129,59 @@ Our exporter → validated additional A2UI catalog definition
 Register renderer implementation before agents can use it
 ```
 
-Note that the exported `StatusBadge` **does not automatically render inside the showcase**: a custom A2UI component implementation must be registered alongside the Basic Catalog, under the matching custom `catalogId`. This Storybook project intentionally stops after exporting and validating its schema. It makes no claim of a completed SDK registration.
+The exported primitives are **not** registered as A2UI renderer components here; this project stops at a validated
+schema.
 
-## Specific project files
+**Known exporter finding:** exported component schemas use `additionalProperties: false`, which rejects the envelope
+`id` when a full wire component is validated against the pinned A2UI v1.0 envelope schema. The exporter was not modified.
+See [`docs/EXPORTER_FINDINGS.md`](docs/EXPORTER_FINDINGS.md) and `node scripts/repro-envelope-id.mjs`.
 
-- `src/basic/BasicCatalogExplorer.tsx`: official schema viewer for all 18 Basic components
-- `src/basic/BasicSurface.tsx`: standard SDK `MessageProcessor` and `<A2uiSurface>` adapter, not a new component library
-- `src/basic/examples.ts`: small A2UI message examples for individual built-ins
-- `src/examples/budget.ts`: deterministic composition adapted from the showcase's budget sample
-- `src/examples/BudgetSurface.tsx`: renders the composed budget JSON and relays actions back to the sample logic
-- `src/extensions/StatusBadge.tsx`: only new exported React primitive in this project
-- `.storybook/main.ts`: manifest feature flag + React docgen
-- `scripts/sync-basic.mjs`: serializes the *installed* SDK's authoritative Basic Catalog
-- `scripts/export-extension.mjs`: invokes the unchanged, pinned capstone exporter
+## Commands
 
-## Publishing to GitHub
+| Command | What it does |
+| --- | --- |
+| `npm run storybook` | Dev server on port 6006 |
+| `npm run build-storybook` | Static build with `index.json` and `manifests/components.json` |
+| `npm run typecheck` | `tsc --noEmit` over `src`, `.storybook`, `tests` |
+| `npm run catalog:basic` | Writes the official catalog from the installed SDK |
+| `npm run catalog:inspect` | `storybook-a2ui inspect`: exportable vs. blocked, with reasons |
+| `npm run catalog:export` | Multi-component and one-component exports (prints each real command) |
+| `npm run catalog:export:one` | One-component export only |
+| `npm run catalog:verify` | Provenance, validation and snapshot checks (see above) |
+| `npm run catalog:show -- …` | Presenter JSON viewer, labeled by provenance |
+| `npm run catalog:snapshot` | Refreshes `catalog-snapshots/` from `a2ui-catalog/` |
+| `npm run demo:export` | build → basic → inspect → export → verify |
+| `npm run test:e2e` | Playwright tests against the static build (run `build-storybook` first) |
+| `npm run screenshots` | Same tests, also writing `docs/screenshots/after/` |
 
-Create an empty repository named `a2ui-basic-storybook`. In the extracted folder:
+End-to-end tests use the locally installed Google Chrome (no browser download). On CI they use Playwright's Chromium
+(`npx playwright install --with-deps chromium`). To test a running dev server instead, set the environment variable
+first: `$env:STORYBOOK_URL='http://localhost:6006'; npm run test:e2e`.
 
-```sh
-git init -b main
-npm install
-git add .
-git commit -m "Demo A2UI Basic Catalog and Storybook export extension"
-git remote add origin https://github.com/o0avdi/a2ui-basic-storybook.git
-git push -u origin main
-```
+## Verification
 
-Commit the resulting `package-lock.json` for reproducibility. GitHub Actions currently uses `npm install` so the initial ZIP can run without a committed lock; after committing a lockfile, change CI to `npm ci`.
+Results from the last local run (Windows 11, Node 24.20.0) are listed in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
+Screenshots: [`docs/screenshots/before/`](docs/screenshots/before) (original) and
+[`docs/screenshots/after/`](docs/screenshots/after) (generated by `npm run screenshots`).
 
-## Limitations and testing
+## Project files
 
-- Live installation/build was **not executed** in the packaging environment, which had no access to the npm registry. Run `npm run typecheck` and `npm run demo:export` locally, and fix any dependency/SDK incompatibilities before relying on a showcase demo.
-- The budget screen is adapted from a sample, not generated live by an LLM in Storybook. The separate showcase app is where live agent prompting happens.
-- 14 basic primitives have example stories. The schema explorer lists all 18 official components; the remaining primitives can get full preview stories later.
-- The CSS is a lightweight presentation layer for the SDK's existing widgets; it does not rebuild or redefine the Basic Catalog.
+- `src/basic/BasicSurface.tsx`: internal SDK harness (MessageProcessor + `<A2uiSurface>`, live data-model readout)
+- `src/basic/schema.ts`: read-only helpers over `basicCatalog.toJson()` (property rows, enums, type labels)
+- `src/basic/storyKit.tsx`, `SdkDocsPage.tsx`: shared story plumbing and the Basic Catalog docs page
+- `src/basic/BasicCatalogExplorer.tsx`, `SchemaTable.tsx`, `JsonView.tsx`: official schema explorer
+- `src/stories/basic/*.stories.tsx`: one story file per official component
+- `src/examples/budget.ts`: deterministic composition adapted from the showcase (differences listed at the top)
+- `src/examples/BudgetSurface.tsx`: presentation shell; relays SDK actions to the sample logic and to Actions
+- `src/extensions/*.tsx`: the exportable React primitives (`StatusBadge`, `MetricLabel`, `ProgressIndicator`)
+- `src/exporter/*`: Storybook pages for exporter output (pre-generated snapshots)
+- `scripts/`: catalog sync, export wrapper, verify, snapshot, viewer, static server, finding reproducer
+- `tests/e2e/`: Playwright tests (Actions, controls, bindings, budget flow, explorer, exporter, all-stories smoke)
+
+## Limitations
+
+- The budget screen is deterministic sample logic, not a live LLM call; live prompting happens in the separate
+  showcase app.
+- `Video` and `AudioPlayer` have no preview story (they need external media).
+- Storybook pages show the **pre-generated** exporter snapshot; fresh output is in `a2ui-catalog/` and the CLI.
+- The SDK renders TextField labels without a programmatic association to the input (see `docs/EXPORTER_FINDINGS.md`, section 2).

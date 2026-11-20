@@ -73,7 +73,7 @@ npm run demo:export        # build-storybook → catalog:basic → catalog:inspe
 ```powershell
 Remove-Item -Recurse -Force a2ui-catalog/live -ErrorAction SilentlyContinue   # --out must be new or empty
 npx storybook-a2ui export --storybook storybook-static --components ProgressIndicator `
-  --catalog-id https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1 --out a2ui-catalog/live
+  --catalog-id https://o0avdi.github.io/edis-storybook/catalogs/progress-indicator/v1 --out a2ui-catalog/live
 ```
 
 Or `npm run catalog:export:one`, which clears its output folder, prints that exact command, and runs it.

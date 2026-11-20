@@ -18,9 +18,9 @@
     },
     "anyFunction": false
   },
-  "$id": "https://o0avdi.github.io/a2ui-basic-storybook/catalogs/extension/v1",
+  "$id": "https://o0avdi.github.io/edis-storybook/catalogs/extension/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "catalogId": "https://o0avdi.github.io/a2ui-basic-storybook/catalogs/extension/v1",
+  "catalogId": "https://o0avdi.github.io/edis-storybook/catalogs/extension/v1",
   "components": {
     "MetricLabel": {
       "additionalProperties": false,

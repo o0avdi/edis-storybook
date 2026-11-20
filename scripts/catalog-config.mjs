@@ -16,7 +16,7 @@ export const EXPORTS = {
     key: 'extension',
     label: 'Exporter-generated extension catalog (3 new React primitives)',
     components: ['StatusBadge', 'MetricLabel', 'ProgressIndicator'],
-    catalogId: 'https://o0avdi.github.io/a2ui-basic-storybook/catalogs/extension/v1',
+    catalogId: 'https://o0avdi.github.io/edis-storybook/catalogs/extension/v1',
     title: 'Storybook Primitive Extension',
     out: `${OUTPUT_ROOT}/extension`,
   },
@@ -24,7 +24,7 @@ export const EXPORTS = {
     key: 'progress-indicator',
     label: 'Exporter-generated one-component catalog (ProgressIndicator)',
     components: ['ProgressIndicator'],
-    catalogId: 'https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1',
+    catalogId: 'https://o0avdi.github.io/edis-storybook/catalogs/progress-indicator/v1',
     out: `${OUTPUT_ROOT}/progress-indicator`,
   },
 };

@@ -16,7 +16,7 @@
     },
     "extension": {
       "label": "Exporter-generated extension catalog (3 new React primitives)",
-      "producedBy": "npx storybook-a2ui export --storybook storybook-static --components StatusBadge,MetricLabel,ProgressIndicator --catalog-id https://o0avdi.github.io/a2ui-basic-storybook/catalogs/extension/v1 --out a2ui-catalog/extension --title \"Storybook Primitive Extension\"",
+      "producedBy": "npx storybook-a2ui export --storybook storybook-static --components StatusBadge,MetricLabel,ProgressIndicator --catalog-id https://o0avdi.github.io/edis-storybook/catalogs/extension/v1 --out a2ui-catalog/extension --title \"Storybook Primitive Extension\"",
       "files": [
         "catalog.json",
         "export-report.json"
@@ -24,7 +24,7 @@
     },
     "progress-indicator": {
       "label": "Exporter-generated one-component catalog (ProgressIndicator)",
-      "producedBy": "npx storybook-a2ui export --storybook storybook-static --components ProgressIndicator --catalog-id https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1 --out a2ui-catalog/progress-indicator",
+      "producedBy": "npx storybook-a2ui export --storybook storybook-static --components ProgressIndicator --catalog-id https://o0avdi.github.io/edis-storybook/catalogs/progress-indicator/v1 --out a2ui-catalog/progress-indicator",
       "files": [
         "catalog.json",
         "export-report.json"

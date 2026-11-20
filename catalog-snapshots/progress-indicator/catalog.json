@@ -12,9 +12,9 @@
     },
     "anyFunction": false
   },
-  "$id": "https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1",
+  "$id": "https://o0avdi.github.io/edis-storybook/catalogs/progress-indicator/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "catalogId": "https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1",
+  "catalogId": "https://o0avdi.github.io/edis-storybook/catalogs/progress-indicator/v1",
   "components": {
     "ProgressIndicator": {
       "additionalProperties": false,

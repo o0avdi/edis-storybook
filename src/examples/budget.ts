@@ -2,8 +2,14 @@
  * A2UI message construction adapted from the original personal-budget showcase:
  * https://github.com/o0avdi/a2ui-showcase-demo/blob/feature/personal-budget-demo/server/providers/budget-sample.ts
  * This is a message-composition example, not a custom React dashboard component.
+ *
+ * Differences from the reference, all expressed with official Basic Catalog properties:
+ *  - the three summary Cards carry `weight: 1` so they share the Row width (legible on a projector);
+ *  - category-table cells carry `weight: 1` and those Rows use `align: "center"`, so the columns line up.
+ * Component ids, actions, event names, context bindings and the data model are unchanged.
  */
 import { basicCatalog } from '@a2ui/web_core/catalogs/basic/v1';
+import type { ComponentNode, CreateSurfaceMessage } from '../basic/messages';
 
 const categories = [
   { id: 'groceries', name: 'Groceries', spent: 340, budget: 400, transactions: ['Nov 12 · Groceries · $85'] },
@@ -17,7 +23,10 @@ const money = (amount: number) => dollars.format(amount);
 const text = (id: string, value: string) => ({ id, component: 'Text', text: value });
 const row = (id: string, children: string[]) => ({ id, component: 'Row', justify: 'spaceBetween', children });
 const column = (id: string, children: string[]) => ({ id, component: 'Column', children });
-const card = (id: string, child: string) => ({ id, component: 'Card', child });
+const card = (id: string, child: string, extra: Record<string, unknown> = {}) => ({ id, component: 'Card', child, ...extra });
+/** A table-like Row: equal-width cells (weight 1, an official property) centered vertically. */
+const tableRow = (id: string, children: string[]) => ({ ...row(id, children), align: 'center' });
+const cell = <T extends object>(node: T) => ({ ...node, weight: 1 });
 const path = (field: string) => ({ '@path': '/scenario/' + field });
 const scenarioContext = { fundBalance: path('fundBalance'), expenseCost: path('expenseCost') };
 const button = (id: string, label: string, name: string, context: Record<string, unknown>) => [
@@ -31,7 +40,7 @@ function amount(value: unknown, fallback: number): number {
   return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1e9 ? parsed : fallback;
 }
 
-export function budgetReply(action?: { name: string; context: Record<string, unknown> }) {
+export function budgetReply(action?: { name: string; context: Record<string, unknown> }): CreateSurfaceMessage {
   const fundBalance = amount(action?.context.fundBalance, action?.name === 'check_coverage' ? NaN : 3000);
   const expenseCost = amount(action?.context.expenseCost, action?.name === 'check_coverage' ? NaN : 1200);
   const valid = Number.isFinite(fundBalance) && Number.isFinite(expenseCost);
@@ -69,26 +78,29 @@ export function budgetReply(action?: { name: string; context: Record<string, unk
           text('cost', 'Estimated repair cost · **' + money(expenseCost) + '**'),
           text('result', '**' + result + '**'),
           ...button('edit', 'Edit amounts', 'edit_amounts', scenarioContext)];
-  const components = [
+  const components: ComponentNode[] = [
     column('root', ['title', 'sample_label', 'summary', 'category_card', 'details_card']),
     text('title', '# November budget'),
     text('sample_label', 'Sample data'),
     row('summary', stats.map(([id]) => id)),
     ...stats.flatMap(([id, value, label]) => [
-      card(id, id + '_text'), text(id + '_text', '**' + money(value) + '**  \n' + label),
+      card(id, id + '_text', { weight: 1 }), text(id + '_text', '**' + money(value) + '**  \n' + label),
     ]),
     card('category_card', 'categories'),
     column('categories', ['headers', ...categories.map(({ id }) => id + '_row')]),
-    row('headers', ['category_header', 'spending_header', 'status_header']),
-    text('category_header', '**Category**'),
-    text('spending_header', '**Spent / Budget**'),
-    text('status_header', '**Status**'),
-    ...categories.flatMap(({ id, name, spent, budget }) => [
-      row(id + '_row', [id, id + '_spending', id + '_status']),
-      ...button(id, name, 'select_category', { ...scenarioContext, category: id }),
-      text(id + '_spending', money(spent) + ' / ' + money(budget)),
-      text(id + '_status', money(Math.abs(budget - spent)) + (spent > budget ? ' over' : ' left')),
-    ]),
+    tableRow('headers', ['category_header', 'spending_header', 'status_header']),
+    cell(text('category_header', '**Category**')),
+    cell(text('spending_header', '**Spent / Budget**')),
+    cell(text('status_header', '**Status**')),
+    ...categories.flatMap(({ id, name, spent, budget }) => {
+      const [categoryButton, categoryLabel] = button(id, name, 'select_category', { ...scenarioContext, category: id });
+      return [
+        tableRow(id + '_row', [id, id + '_spending', id + '_status']),
+        cell(categoryButton), categoryLabel,
+        cell(text(id + '_spending', money(spent) + ' / ' + money(budget))),
+        cell(text(id + '_status', money(Math.abs(budget - spent)) + (spent > budget ? ' over' : ' left'))),
+      ];
+    }),
     card('details_card', 'details'),
     column('details', details.filter(({ id }) => !id.endsWith('_label')).map(({ id }) => id)),
     ...details,

@@ -4,9 +4,19 @@ import '@fontsource-variable/material-symbols-outlined/index.css';
 
 const preview: Preview = {
   parameters: {
-    layout: 'padded',
+    // Stories render their own framed stage; fullscreen avoids Storybook's extra padding around it.
+    layout: 'fullscreen',
     controls: { expanded: true },
-    options: { storySort: { order: ['Start Here', 'Basic Catalog', 'Agent Composition', 'Exporter Extension'] } },
+    options: {
+      storySort: {
+        order: [
+          'Start Here', ['Welcome', 'Official Basic Catalog'],
+          'Basic Catalog', ['Content', 'Layout', 'Interactive'],
+          'Composed Example',
+          'Exporter', ['Generated Catalogs', 'Source Primitives'],
+        ],
+      },
+    },
   },
 };
 

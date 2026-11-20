@@ -26,14 +26,13 @@ npm run storybook          # http://localhost:6006
 
 Sidebar order (built for a two-minute demo):
 
-1. **Start Here / Welcome**: the route and a table of where each JSON artifact comes from.
-2. **Start Here / Official Basic Catalog**: searchable explorer for the SDK's 18 components and 14 functions:
+1. **Start Here / Welcome**: a short three-stop route and where the official components come from.
+2. **Start Here / Official Basic Catalog**: component-focused explorer for the SDK's 18 components:
    property tables (type, required, default, description), highlighted JSON, copy buttons, the complete raw catalog.
 3. **Basic Catalog / Content · Layout · Interactive**: 16 official components, each **rendered by the SDK** from a
    `createSurface` message, with purposeful variants, user-level controls, a live data-model readout and docs pages.
 4. **Composed Example / November Budget**: the composition, with a side-by-side `createSurface` JSON view.
-5. **Exporter / Generated Catalogs** and **Exporter / Source Primitives**: our exporter's output for new React
-   primitives (`StatusBadge`, `MetricLabel`, `ProgressIndicator`).
+The **Exporter** stories are hidden by default using Storybook's tag filter, but remain in the project so the generated component manifest and CLI exporter workflow still work. The original exporter stories can be revealed through the sidebar filter if needed.
 
 ## How the Basic Catalog stories work (and what they are not)
 
@@ -55,9 +54,9 @@ Sidebar order (built for a two-minute demo):
   the real React source primitives.
 - `Video` and `AudioPlayer` appear in the explorer only, because they need external media URLs.
 
-## Exporter demo
+## Exporter CLI (separate from the public Storybook tour)
 
-The exporter needs a **static** build (`storybook-static/manifests/components.json`), even while `npm run storybook`
+The separate exporter CLI needs a **static** build (`storybook-static/manifests/components.json`), even while `npm run storybook`
 is running. Prebuild before presenting so the live command is instant:
 
 ```powershell

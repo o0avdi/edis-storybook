@@ -1,44 +1,53 @@
-# Two-minute walkthrough
+# EDIS Storybook: 90-second walkthrough
 
-## Before the demo (5 minutes earlier)
+The **public** Storybook route is Start Here → Basic Catalog → Composed Example. The exporter is a separate CLI demonstration, not a sidebar section.
+
+## Before presenting
 
 ```powershell
-npm ci                      # once
-npm run demo:export         # prebuilds storybook-static and all catalogs; ends with PASS lines
-npm run storybook           # terminal 1, leave running → http://localhost:6006
+npm ci
+npm run demo:export    # static Storybook build, official SDK catalog and exporter output
+npm run storybook      # leave the Storybook browser open at http://localhost:6006
 ```
 
-Open a second PowerShell terminal in the project folder for the live command. Browser zoom 100–125% on a 1920×1080
-projector. Hide the addon panel with `Alt+A` on pages that have no controls.
+Keep a second PowerShell terminal in the project directory. You do **not** need the exporter during the Storybook portion.
 
-## Script
+## What to show
 
-| Time | Click | Say |
+| Stop | Open | What to say |
 | --- | --- | --- |
-| 0:00 | **Start Here / Official Basic Catalog** → type `slider` → *Official JSON* | “This is the vocabulary the agent is allowed to use. It ships with the A2UI SDK: 18 components, 14 functions. We didn’t write or generate this schema.” |
-| 0:20 | *Live SDK preview →* (opens **Slider** docs), drag the slider | “These are the SDK’s own components, rendered from a small A2UI message. The panel underneath is the SDK data model; the binding is two-way.” |
-| 0:35 | **Basic Catalog / Interactive / Button**, click *Save budget*, open **Actions** | “A button carries an agent event. Storybook’s Actions panel shows exactly what the agent would receive: event name, surface, source component, context.” |
-| 0:50 | **Composed Example / November Budget**, click *Dining out*, then *Show emergency fund* → *Edit amounts* → change a value → *Check coverage* | “This dashboard isn’t a React component. It’s one `createSurface` message built only from those primitives. Each click sends an event, and deterministic sample logic answers with a new message, standing in for the agent. It’s not a live model call.” |
-| 1:10 | *Show createSurface JSON* | “Here is the exact message the renderer received: Text, Row, Card, Button, Column.” |
-| 1:25 | **Exporter / Source Primitives / ProgressIndicator** | “For a *new* company-specific primitive, we write a normal React component. Storybook documents its props.” |
-| 1:35 | Terminal 2: `npm run catalog:export:one`, then `npm run catalog:show -- ProgressIndicator` | “Our exporter reads Storybook’s manifest, runs strictly, validates against the official A2UI v1.0 schemas, and writes an *additional* catalog. Events, children and objects are blocked, never guessed.” |
-| 1:50 | **Exporter / Generated Catalogs** → tabs 2–4 | “Three exported primitives, the report, and, kept separate, the official Basic Catalog. We never re-export the SDK’s catalog.” |
+| 1 | **Start Here → Welcome** | "These are official A2UI SDK components, documented and previewed in Storybook. We didn't write their implementations." |
+| 2 | **Start Here → Official Basic Catalog** → select Slider → **Official JSON** | "This catalog lists the components and properties an agent is allowed to use." |
+| 3 | **Basic Catalog → Interactive → Button** → click → **Actions** tab | "The UI sends a structured event with an event name and context. An agent can use it to decide the next interface." |
+| 4 | **Basic Catalog → Interactive → Slider** → drag | "The control is bound to a data model; changing it updates the SDK's model." |
+| 5 | **Composed Example → November Budget** → click a category, then Edit amounts | "This screen isn't one special budget component; it's made from those same basic building blocks." |
+| 6 | **Show createSurface JSON** | "This is the JSON the SDK is using to render the dashboard." |
 
-Close: “Storybook describes components. A2UI tells an agent which components it may compose and how. Our exporter
-bridges new source components into that vocabulary. It generates a schema, not the finished UI.”
+The budget sample runs **deterministic example logic**, not a live LLM. A real agent produces similar A2UI messages in the separate showcase app.
 
-## Fallbacks
+## What the SDK terms mean
 
-- **No network or a failed build:** `npm run catalog:show -- --extension` falls back to the committed
-  `catalog-snapshots/` and labels the output `[PRE-GENERATED SNAPSHOT]`. The Storybook exporter pages always use
-  those snapshots.
-- **“Output directory is not empty”:** the raw CLI needs a new or empty `--out`. Use `npm run catalog:export:one`, which
-  clears its own folder, or `Remove-Item -Recurse -Force a2ui-catalog/live` first.
-- **Manifest missing:** run `npm run build-storybook`. The dev server does not write `storybook-static`.
+- `@a2ui/web_core`: official Basic Catalog, message processing, and underlying web components.
+- `@a2ui/react`: React integration that displays the processed surface.
+- `Rendered by the official A2UI SDK`: a genuine SDK widget, not a visual imitation.
+- `createSurface`: JSON instructions describing UI component instances and their relationships.
 
-## Honesty checklist
+## Optional exporter CLI demo
 
-- Official Basic Catalog JSON = SDK-authored. Exporter JSON = generated from Storybook metadata for our primitives.
-- The budget is sample logic, not inference.
-- The exported primitives are not registered with the renderer; the demo stops at a validated schema.
-- Known exporter finding (envelope `id` vs `additionalProperties: false`): `docs/EXPORTER_FINDINGS.md`.
+The official Basic Catalog **does not come from our exporter**. Our exporter handles additional React source components documented in Storybook. Its source stories are hidden from the sidebar but still included in the Storybook build manifest.
+
+In the second PowerShell terminal, with `npm run demo:export` already completed:
+
+```powershell
+npm run catalog:export:one
+npm run catalog:show -- ProgressIndicator
+npm run catalog:show -- --extension
+```
+
+The first command performs a real strict-mode export of one React primitive. The second shows its generated schema; the third shows the pre-generated or fresh three-component extension catalog.
+
+**What to say:** "Storybook builds metadata describing a React component's props. Our exporter reads that manifest and generates an A2UI catalog definition, so agents can be told what additional components exist."
+
+**Known limitations:** Exported components aren't registered in this Storybook's A2UI renderer. The current exporter also has a reproduced full-message envelope `id` validation issue even when catalog schema validation passes; see `docs/EXPORTER_FINDINGS.md`. Do not claim that generated extension components are already renderable.
+
+If the CLI fails during a live presentation, stay in the working Storybook and show the saved JSON using `npm run catalog:show -- --extension`. It labels pre-generated snapshots.

@@ -5,7 +5,7 @@ import { sourceParameters, sourceStage } from './sourceStory';
 const meta = {
   title: 'Exporter/Source Primitives/MetricLabel',
   component: MetricLabel,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'exporter-internal'],
   decorators: [sourceStage],
   parameters: sourceParameters('MetricLabel'),
   args: { label: 'Spent this month', value: 1780, format: 'currency', trend: 'neutral' },

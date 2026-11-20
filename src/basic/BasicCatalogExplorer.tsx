@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import pkg from '../../package.json';
 import { CopyButton, JsonView } from './JsonView';
-import { OFFICIAL_CATALOG, OFFICIAL_COMPONENT_NAMES, OFFICIAL_FUNCTION_NAMES, propertyRows } from './schema';
+import { OFFICIAL_CATALOG, OFFICIAL_COMPONENT_NAMES, propertyRows } from './schema';
 import { SchemaTable } from './SchemaTable';
 import { previewDocsHref } from './storyLinks';
 
@@ -9,10 +9,7 @@ type Entry = { kind: 'component' | 'function'; name: string };
 type View = 'properties' | 'json';
 
 const SDK_VERSION = pkg.dependencies['@a2ui/web_core'];
-const ALL: Entry[] = [
-  ...OFFICIAL_COMPONENT_NAMES.map((name) => ({ kind: 'component' as const, name })),
-  ...OFFICIAL_FUNCTION_NAMES.map((name) => ({ kind: 'function' as const, name })),
-];
+const ALL: Entry[] = OFFICIAL_COMPONENT_NAMES.map((name) => ({ kind: 'component' as const, name }));
 
 /**
  * Browser for the OFFICIAL A2UI Basic Catalog, read from `basicCatalog.toJson()` in the installed SDK.
@@ -31,7 +28,6 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
     return needle ? ALL.filter((entry) => entry.name.toLowerCase().includes(needle)) : ALL;
   }, [query]);
   const components = visible.filter((entry) => entry.kind === 'component');
-  const functions = visible.filter((entry) => entry.kind === 'function');
   const schema = selected.kind === 'component' ? OFFICIAL_CATALOG.components[selected.name] : OFFICIAL_CATALOG.functions[selected.name];
   const href = selected.kind === 'component' ? previewDocsHref(selected.name) : undefined;
   const required = propertyRows(selected.kind === 'component' ? schema : (schema?.properties?.args as typeof schema))
@@ -72,7 +68,7 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
           <p className="eyebrow">Start here · official reference</p>
           <h1>A2UI Basic Catalog</h1>
           <p className="lede">
-            The vocabulary an agent may use to compose UI. Read live from <code>basicCatalog.toJson()</code> in the installed{' '}
+            The reusable building blocks an agent can combine into an interface. Read live from <code>basicCatalog.toJson()</code> in the installed{' '}
             <code>@a2ui/web_core@{SDK_VERSION}</code>.
           </p>
         </div>
@@ -80,10 +76,6 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
           <div>
             <dt>Components</dt>
             <dd>{OFFICIAL_COMPONENT_NAMES.length}</dd>
-          </div>
-          <div>
-            <dt>Functions</dt>
-            <dd>{OFFICIAL_FUNCTION_NAMES.length}</dd>
           </div>
         </dl>
       </header>
@@ -96,16 +88,15 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
       <div className="explorer__grid">
         <nav className="explorer__nav" aria-label="Catalog entries">
           <label className="search">
-            <span className="visually-hidden">Filter components and functions</span>
+            <span className="visually-hidden">Filter components</span>
             <input
               type="search"
-              placeholder="Filter, e.g. text, slider, format…"
+              placeholder="Filter components, e.g. text, slider…"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           {components.length > 0 && renderGroup('Components', components, OFFICIAL_COMPONENT_NAMES.length)}
-          {functions.length > 0 && renderGroup('Functions', functions, OFFICIAL_FUNCTION_NAMES.length)}
           {visible.length === 0 && <p className="muted">No entries match “{query}”.</p>}
         </nav>
 
@@ -161,7 +152,7 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
         <div className="full-catalog__bar">
           <div>
             <h2>Complete official catalog JSON</h2>
-            <p className="muted">The raw document an agent receives, unmodified. Also written to <code>a2ui-catalog/basic/catalog.json</code> by <code>npm run catalog:basic</code>.</p>
+            <p className="muted">The complete SDK-authored document, including advanced functions not covered in this component tour. Also written to <code>a2ui-catalog/basic/catalog.json</code> by <code>npm run catalog:basic</code>.</p>
           </div>
           <div className="full-catalog__actions">
             <CopyButton text={JSON.stringify(OFFICIAL_CATALOG, null, 2)} label="Copy full catalog" />

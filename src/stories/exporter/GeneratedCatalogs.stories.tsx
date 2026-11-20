@@ -4,7 +4,7 @@ import { ExporterOverview } from '../../exporter/ExporterOverview';
 const meta = {
   title: 'Exporter/Generated Catalogs',
   component: ExporterOverview,
-  tags: ['!manifest'],
+  tags: ['!manifest', 'exporter-internal'],
   parameters: { layout: 'fullscreen', controls: { disable: true }, actions: { disable: true } },
 } satisfies Meta<typeof ExporterOverview>;
 

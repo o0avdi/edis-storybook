@@ -5,7 +5,7 @@ import { sourceParameters, sourceStage } from './sourceStory';
 const meta = {
   title: 'Exporter/Source Primitives/ProgressIndicator',
   component: ProgressIndicator,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'exporter-internal'],
   decorators: [sourceStage],
   parameters: sourceParameters('ProgressIndicator'),
   args: { label: 'Groceries budget used', value: 340, max: 400, tone: 'neutral', showValue: true },

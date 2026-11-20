@@ -1,0 +1,34 @@
+{
+  "notice": "PRE-GENERATED SNAPSHOT. Copied from a real run; regenerate with \"npm run demo:export && npm run catalog:snapshot\".",
+  "generatedBy": "scripts/snapshot-catalogs.mjs",
+  "tools": {
+    "storybook-a2ui": "git+ssh://git@github.com/o0avdi/a2ui-storybook-exporter.git#142dd7b4523ff3b37fabacd798b09fbc9de2dfdb",
+    "storybook": "10.6.0",
+    "@a2ui/web_core": "0.15.0"
+  },
+  "artifacts": {
+    "official-basic": {
+      "label": "Official A2UI Basic Catalog (SDK-authored via basicCatalog.toJson(); NOT exporter output)",
+      "producedBy": "npm run catalog:basic  (node scripts/sync-basic.mjs -> basicCatalog.toJson())",
+      "files": [
+        "catalog.json"
+      ]
+    },
+    "extension": {
+      "label": "Exporter-generated extension catalog (3 new React primitives)",
+      "producedBy": "npx storybook-a2ui export --storybook storybook-static --components StatusBadge,MetricLabel,ProgressIndicator --catalog-id https://o0avdi.github.io/a2ui-basic-storybook/catalogs/extension/v1 --out a2ui-catalog/extension --title \"Storybook Primitive Extension\"",
+      "files": [
+        "catalog.json",
+        "export-report.json"
+      ]
+    },
+    "progress-indicator": {
+      "label": "Exporter-generated one-component catalog (ProgressIndicator)",
+      "producedBy": "npx storybook-a2ui export --storybook storybook-static --components ProgressIndicator --catalog-id https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1 --out a2ui-catalog/progress-indicator",
+      "files": [
+        "catalog.json",
+        "export-report.json"
+      ]
+    }
+  }
+}

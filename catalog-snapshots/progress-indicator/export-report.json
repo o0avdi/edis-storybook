@@ -1,0 +1,49 @@
+{
+  "generator": "storybook-a2ui",
+  "protocolVersion": "1.0",
+  "catalogId": "https://o0avdi.github.io/a2ui-basic-storybook/catalogs/progress-indicator/v1",
+  "policy": {
+    "unmappedEvents": "fail"
+  },
+  "notice": "Conversion covers the properties Storybook exposes. The source component contract is not verified: anything the metadata does not list, such as inherited HTML/DOM attributes or projected content like React children, is not visible to this exporter. \"omittedKnown\" lists only omissions the exporter could see; an empty list is not proof that nothing was left out.",
+  "builds": [
+    {
+      "directory": "storybook-static",
+      "adapter": "react-v0",
+      "manifestVersion": 0,
+      "docgen": "react-docgen",
+      "indexSha256": "abbeef451c91d71aef0c49bd74306c57585bb796c495e1891bf39859d96119a5",
+      "manifestSha256": "3338e41bd5013d137bc69e93a04d9a962134c774a16116a21d58fd6d18c7666b"
+    }
+  ],
+  "components": [
+    {
+      "name": "ProgressIndicator",
+      "id": "exporter-source-primitives-progressindicator",
+      "framework": "react",
+      "adapter": "react-v0",
+      "status": "exported",
+      "properties": [
+        "label",
+        "value",
+        "max",
+        "tone",
+        "showValue"
+      ],
+      "contract": {
+        "basis": "storybook-manifest",
+        "sourceContractVerified": false,
+        "inheritedAttributes": "unknown",
+        "projectedContent": "unknown"
+      },
+      "omittedKnown": [],
+      "blocking": [],
+      "warnings": []
+    }
+  ],
+  "result": "exported",
+  "validation": {
+    "validator": "official A2UI v1.0 (pinned in spec/v1_0)",
+    "valid": true
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "anyComponent": {
+      "discriminator": {
+        "propertyName": "component"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/components/MetricLabel"
+        },
+        {
+          "$ref": "#/components/ProgressIndicator"
+        },
+        {
+          "$ref": "#/components/StatusBadge"
+        }
+      ]
+    },
+    "anyFunction": false
+  },
+  "$id": "https://o0avdi.github.io/a2ui-basic-storybook/catalogs/extension/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "catalogId": "https://o0avdi.github.io/a2ui-basic-storybook/catalogs/extension/v1",
+  "components": {
+    "MetricLabel": {
+      "additionalProperties": false,
+      "description": "A labeled numeric value (a single KPI). A flat, atomic primitive: one caption and one formatted\nnumber, with no children, callbacks or nested data, so its Storybook metadata maps cleanly to A2UI. Properties listed by Storybook metadata only; inherited HTML/DOM attributes and handlers are not part of this schema. Projected content (for example React children) may be missing from Storybook metadata and is not described here.",
+      "properties": {
+        "component": {
+          "const": "MetricLabel"
+        },
+        "format": {
+          "default": "number",
+          "description": "How the value is formatted (US English locale; currency is USD).",
+          "enum": [
+            "currency",
+            "number",
+            "percent"
+          ],
+          "type": "string"
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Short caption shown above the value, e.g. \"Spent this month\"."
+        },
+        "trend": {
+          "default": "neutral",
+          "description": "Optional color hint for the value.",
+          "enum": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "type": "string"
+        },
+        "value": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "The number to display. Percent values are given as 0–100."
+        }
+      },
+      "required": [
+        "component",
+        "label",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ProgressIndicator": {
+      "additionalProperties": false,
+      "description": "A horizontal progress bar with a caption, exposed to assistive technology as `role=\"progressbar\"`.\nAtomic and display-only: numeric value/max, an enum tone and a boolean, all flat scalar props. Properties listed by Storybook metadata only; inherited HTML/DOM attributes and handlers are not part of this schema. Projected content (for example React children) may be missing from Storybook metadata and is not described here.",
+      "properties": {
+        "component": {
+          "const": "ProgressIndicator"
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Accessible name and visible caption, e.g. \"Dining out budget used\"."
+        },
+        "max": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "default": 100,
+          "description": "Amount that represents 100%."
+        },
+        "showValue": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "default": true,
+          "description": "Show the \"value / max\" readout next to the label."
+        },
+        "tone": {
+          "default": "neutral",
+          "description": "Color of the filled bar.",
+          "enum": [
+            "danger",
+            "neutral",
+            "success",
+            "warning"
+          ],
+          "type": "string"
+        },
+        "value": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "Current amount. Values outside 0…max are clamped for display."
+        }
+      },
+      "required": [
+        "component",
+        "label",
+        "value"
+      ],
+      "type": "object"
+    },
+    "StatusBadge": {
+      "additionalProperties": false,
+      "description": "A compact pill that labels a status. The original example primitive for the Storybook → exporter path. Properties listed by Storybook metadata only; inherited HTML/DOM attributes and handlers are not part of this schema. Projected content (for example React children) may be missing from Storybook metadata and is not described here.",
+      "properties": {
+        "component": {
+          "const": "StatusBadge"
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Short status message."
+        },
+        "status": {
+          "description": "Visual status state.",
+          "enum": [
+            "info",
+            "success",
+            "warning"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "component",
+        "label",
+        "status"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "Standardized components exported from React Storybook.",
+  "functions": {},
+  "instructions": "Use only the components and properties declared in this catalog. Properties, types, defaults and requiredness come from Storybook component metadata, not from story args. Events and projected content without a reviewed A2UI mapping are not part of a component schema; where a component description lists them as not exported, the developer owns that behavior. Bindings use the A2UI v1.0 @path form. This export contains catalog JSON only.",
+  "protocolVersion": "1.0",
+  "title": "Storybook Primitive Extension"
+}

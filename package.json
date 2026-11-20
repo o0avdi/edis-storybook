@@ -1,0 +1,41 @@
+{
+  "name": "a2ui-basic-storybook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12" },
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build -o storybook-static",
+    "catalog:basic": "node scripts/sync-basic.mjs",
+    "catalog:export": "node scripts/export-extension.mjs",
+    "catalog:verify": "node scripts/verify-catalogs.mjs",
+    "inspect:storybook": "node scripts/export-extension.mjs inspect",
+    "demo:export": "npm run build-storybook && npm run catalog:basic && npm run catalog:export && npm run catalog:verify",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@a2ui/markdown-it": "0.2.2",
+    "@a2ui/react": "0.15.0",
+    "@a2ui/web_core": "0.15.0",
+    "@fontsource-variable/material-symbols-outlined": "5.3.9",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@storybook/addon-docs": "10.6.0",
+    "@storybook/react-vite": "10.6.0",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "storybook": "10.6.0",
+    "storybook-a2ui": "github:o0avdi/a2ui-storybook-exporter#142dd7b4523ff3b37fabacd798b09fbc9de2dfdb",
+    "typescript": "7.0.2",
+    "vite": "8.3.8"
+  },
+  "overrides": {
+    "dompurify": "3.4.17",
+    "@a2ui/markdown-it": { "@a2ui/web_core": "$@a2ui/web_core" }
+  }
+}

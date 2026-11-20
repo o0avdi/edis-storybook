@@ -1,0 +1,22 @@
+name: Build Basic Catalog Storybook
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm run demo:export
+      - uses: actions/upload-artifact@v4
+        with:
+          name: a2ui-storybook-and-catalogs
+          path: |
+            storybook-static/
+            a2ui-catalog/

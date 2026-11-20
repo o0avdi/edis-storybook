@@ -15,7 +15,12 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       # build-storybook -> catalog:basic -> catalog:inspect -> catalog:export -> catalog:verify (incl. snapshot drift)
-      - run: npm run demo:export
+      - run: npm run catalog:all
+      # Live presentation command, twice: each run must get its own folder and leave demo-examples/ untouched.
+      - run: npm run export:demo
+      - run: npm run export:demo
+      - run: test -f demo-output/run-001/catalog.json && test -f demo-output/run-002/catalog.json
+      - run: npm run examples:verify && git diff --exit-code -- demo-examples
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4

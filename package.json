@@ -18,9 +18,12 @@
     "catalog:snapshot": "node scripts/snapshot-catalogs.mjs",
     "catalog:show": "node scripts/show-schema.mjs",
     "inspect:storybook": "npm run catalog:inspect",
-    "demo:export": "npm run build-storybook && npm run catalog:basic && npm run catalog:inspect && npm run catalog:export && npm run catalog:verify",
+    "catalog:all": "npm run build-storybook && npm run catalog:basic && npm run catalog:inspect && npm run catalog:export && npm run catalog:verify && npm run examples:verify",
     "test:e2e": "playwright test --project=e2e",
-    "screenshots": "playwright test --project=evidence"
+    "screenshots": "playwright test --project=evidence",
+    "export:demo": "node scripts/export-demo.mjs",
+    "examples:verify": "node scripts/demo-examples.mjs verify",
+    "examples:show": "node scripts/demo-examples.mjs show"
   },
   "dependencies": {
     "@a2ui/markdown-it": "0.2.2",

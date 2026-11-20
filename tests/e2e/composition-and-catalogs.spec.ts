@@ -67,10 +67,23 @@ test('official catalog explorer: search, property table, JSON, copy', async ({ p
   await expect(frame.getByRole('button', { name: 'Copied ✓' })).toBeVisible();
   await shot('03-explorer-slider-json');
 
+  // Components only: no Functions list or count in the main interface...
+  await expect(frame.getByRole('heading', { name: /^Functions/ })).toHaveCount(0);
+  await expect(frame.locator('.stats')).not.toContainText('Functions');
   await frame.getByPlaceholder(/Filter/).fill('format');
-  await expect(frame.getByRole('option')).toHaveCount(4); // formatString, formatNumber, formatCurrency, formatDate
+  await expect(frame.getByRole('option')).toHaveCount(0);
+  await expect(frame.getByText('No components match')).toBeVisible();
+  await frame.getByPlaceholder(/Filter/).fill('');
+  await expect(frame.getByRole('option')).toHaveCount(18);
+
+  // ...but the raw catalog is still the complete, unmodified SDK document, functions included.
+  await frame.getByRole('button', { name: 'Show raw JSON' }).click();
+  const raw = frame.locator('.full-catalog .json-view__code');
+  await expect(raw).toContainText('"functions"');
+  await expect(raw).toContainText('"formatCurrency"');
 });
 
+// The exporter pages are hidden from the sidebar for the showcase but still built and reachable by URL.
 test('exporter page separates exporter output from the official catalog', async ({ page, shot }) => {
   const frame = await openStory(page, 'exporter-generated-catalogs--overview');
   await expect(frame.getByText('Pre-generated snapshot.')).toBeVisible();
@@ -98,8 +111,10 @@ test('exporter source primitive docs show docgen controls and the exported schem
 
 test('welcome and docs pages (presentation screenshots)', async ({ page, shot }) => {
   await openStory(page, 'start-here-welcome--docs', 'docs');
-  await expect(docs(page).getByRole('heading', { name: 'Two-minute route' })).toBeVisible();
+  await expect(docs(page).getByRole('heading', { name: 'Suggested demo path' })).toBeVisible();
+  await expect(docs(page).getByText('Explore catalog → Click Button → Try Slider → View Budget Tracker → Inspect A2UI JSON')).toBeVisible();
   await expect(docs(page).locator('table').first()).toContainText('Official Basic Catalog');
+  await expect(docs(page).getByText('deterministic sample logic, not a live AI model call')).toBeVisible();
   await shot('01-welcome');
 
   await openStory(page, 'basic-catalog-interactive-slider--docs', 'docs');
@@ -120,4 +135,22 @@ test('in-preview links navigate the Storybook manager (demo route)', async ({ pa
   await frame.getByRole('link', { name: 'Live SDK preview →' }).click();
   await expect(page).toHaveURL(/path=\/docs\/basic-catalog-interactive-slider--docs/);
   await expect(docs(page).getByRole('heading', { name: 'Official schema · Slider' })).toBeVisible();
+});
+
+test('sidebar shows only Start Here, Basic Catalog and Composed Example', async ({ page }) => {
+  await openStory(page, 'start-here-welcome--docs', 'docs');
+  const tree = page.locator('#storybook-explorer-tree');
+  const roots = await tree.locator('[data-nodetype="root"]').evaluateAll((elements) => elements.map((element) => element.textContent?.trim()));
+  expect(roots).toEqual(['Start Here', 'Basic Catalog', 'Composed Example']);
+  await expect(tree).not.toContainText('Exporter');
+  await expect(tree).not.toContainText('ProgressIndicator');
+});
+
+test('static build keeps the three exportable components in the manifest', async ({ request }) => {
+  const manifest = (await (await request.get('/manifests/components.json')).json()) as { components: Record<string, { name: string }> };
+  expect(Object.values(manifest.components).map((component) => component.name).sort()).toEqual(['MetricLabel', 'ProgressIndicator', 'StatusBadge']);
+  // Hidden from the sidebar only: the stories are still in the index.
+  const index = (await (await request.get('/index.json')).json()) as { entries: Record<string, { id: string; tags: string[] }> };
+  const hidden = Object.values(index.entries).filter((entry) => entry.tags.includes('exporter-internal'));
+  expect(hidden.map((entry) => entry.id)).toContain('exporter-source-primitives-progressindicator--docs');
 });

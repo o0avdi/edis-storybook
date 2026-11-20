@@ -25,7 +25,7 @@ function load(freshDir, snapshotKey, file) {
   const snapshot = `${SNAPSHOT_ROOT}/${snapshotKey}/${file}`;
   if (existsSync(fresh)) return { json: JSON.parse(readFileSync(fresh, 'utf8')), source: `${fresh}  [fresh output]` };
   if (existsSync(snapshot)) return { json: JSON.parse(readFileSync(snapshot, 'utf8')), source: `${snapshot}  [PRE-GENERATED SNAPSHOT]` };
-  throw new Error(`Neither ${fresh} nor ${snapshot} exists. Run "npm run demo:export".`);
+  throw new Error(`Neither ${fresh} nor ${snapshot} exists. Run "npm run catalog:all".`);
 }
 
 function header(title, source) {

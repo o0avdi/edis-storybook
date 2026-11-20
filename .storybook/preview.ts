@@ -13,7 +13,6 @@ const preview: Preview = {
           'Start Here', ['Welcome', 'Official Basic Catalog'],
           'Basic Catalog', ['Content', 'Layout', 'Interactive'],
           'Composed Example',
-          'Exporter', ['Generated Catalogs', 'Source Primitives'],
         ],
       },
     },

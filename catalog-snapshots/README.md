@@ -13,7 +13,7 @@
 Fresh output goes to `a2ui-catalog/` (gitignored). To refresh these copies after changing a source primitive:
 
 ```powershell
-npm run demo:export        # build Storybook, sync official catalog, inspect, export, verify
+npm run catalog:all        # build Storybook, sync official catalog, inspect, export, verify
 npm run catalog:snapshot   # copy a2ui-catalog/* here and rewrite PROVENANCE.json
 ```
 

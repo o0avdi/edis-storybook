@@ -1,5 +1,34 @@
 # Verification record
 
+## EDIS final preparation (branch `feat/edis-final-demo`)
+
+Local run on 2026-11-20: Windows 11, Node 24.20.0, npm 11.19.0, Google Chrome via Playwright. Started from clean
+`storybook-static/`, `a2ui-catalog/` and `demo-output/` folders. **Not run on macOS** (see "macOS" below).
+
+| Check | Command / method | Result |
+| --- | --- | --- |
+| Typecheck | `npm run typecheck` | PASS |
+| Build + full catalog pipeline | `npm run catalog:all` | PASS. Same `PASS`/`KNOWN` lines as below, plus both frozen examples `unchanged ... valid A2UI v1.0 catalog`. Build output has one existing Vite chunk-size notice, also present on the baseline branch |
+| Manifest after hiding exporter stories | Playwright: `GET /manifests/components.json` | Exactly `MetricLabel`, `ProgressIndicator`, `StatusBadge`. Hidden stories still listed in `index.json` |
+| Sidebar | Playwright: sidebar roots | Exactly `Start Here`, `Basic Catalog`, `Composed Example`; no "Exporter" text |
+| Explorer | Playwright | 18 components, no Functions list or count; filtering `format` returns no entries; raw JSON still contains `functions` / `formatCurrency` |
+| Live export, twice | `npm run export:demo` ×2 | Both exit 0 with `EXPORT SUCCEEDED`; created `demo-output/run-001/` and `run-002/`, each with `catalog.json` + `export-report.json`; policy `unmappedEvents: fail` |
+| Frozen examples unchanged | SHA-256 before/after both exports | Byte-identical (`ce91ee5b...` and `8599d65b...`). Run output also byte-identical to example 1 |
+| Missing build | `export:demo` with `manifests/` renamed | Friendly "run npm run build-storybook" message, exit 2, no run folder created |
+| Tamper detection | append one byte to example 1, `npm run examples:verify` | FAIL with old/new hashes and restore instruction; PASS after restore |
+| Clean install without SSH | fresh clone + `npm ci` with SSH disabled and an empty npm cache | PASS: the pinned exporter installs over HTTPS (public repo), so no GitHub SSH key is needed |
+| E2E + screenshots | `npm run screenshots` (same tests as `test:e2e`) | **24 passed**: the 22 original tests (Actions, bindings, budget flow, JSON view, explorer, all-stories smoke) + sidebar and manifest checks |
+
+### macOS
+
+Not tested on a Mac. Reviewed for portability: every npm script is plain Node.js (no PowerShell/Bash), paths are
+relative, `package-lock.json` contains the `darwin-arm64` and `darwin-x64` native packages (esbuild, rolldown,
+lightningcss, oxc, TypeScript), and `.gitattributes` keeps the frozen JSON bytes identical across platforms. Eric
+should run the README's macOS commands once before the showcase and confirm `npm run examples:verify` prints two
+`PASS` lines and `npm run export:demo` prints `EXPORT SUCCEEDED`.
+
+## Earlier record (branch `feat/storybook-demo-polish`)
+
 Local run on 2026-11-19: Windows 11, Node 24.20.0, npm 11.19.0, Google Chrome (via Playwright `channel: 'chrome'`).
 Branch `feat/storybook-demo-polish`. The commands are the ones in `package.json`; results are copied from the actual output.
 

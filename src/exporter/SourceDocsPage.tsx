@@ -32,7 +32,7 @@ export function SourceDocsPage() {
         <>
           <p className="docs-note">
             <strong>Pre-generated snapshot</strong> from <code>catalog-snapshots/extension/catalog.json</code>, copied from a
-            real <code>storybook-a2ui export</code> run. Regenerate with <code>npm run demo:export</code> then{' '}
+            real <code>storybook-a2ui export</code> run. Regenerate with <code>npm run catalog:all</code> then{' '}
             <code>npm run catalog:snapshot</code>; <code>npm run catalog:verify</code> fails if it drifts.
           </p>
           <Unstyled>
@@ -44,7 +44,7 @@ export function SourceDocsPage() {
         </>
       ) : (
         <p className="docs-note">
-          No snapshot for {name} yet. Run <code>npm run demo:export</code> and <code>npm run catalog:snapshot</code>.
+          No snapshot for {name} yet. Run <code>npm run catalog:all</code> and <code>npm run catalog:snapshot</code>.
         </p>
       )}
       <Stories title="Named variants" includePrimary={false} />

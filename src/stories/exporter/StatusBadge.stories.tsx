@@ -5,7 +5,7 @@ import { sourceParameters, sourceStage } from './sourceStory';
 const meta = {
   title: 'Exporter/Source Primitives/StatusBadge',
   component: StatusBadge,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'exporter-internal'],
   decorators: [sourceStage],
   parameters: sourceParameters('StatusBadge'),
   args: { label: 'All checks passing', status: 'success' },

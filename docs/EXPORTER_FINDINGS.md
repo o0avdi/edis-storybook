@@ -28,7 +28,7 @@ its own subschema, so inside the `anyComponent` branch the envelope's `id` count
 Official Basic Catalog components omit `additionalProperties` and rely on the envelope's
 `unevaluatedProperties: false`, which still rejects undeclared properties.
 
-**Reproducer** (requires `npm run demo:export` first; changes nothing on disk):
+**Reproducer** (requires `npm run catalog:all` first; changes nothing on disk):
 
 ```powershell
 node scripts/repro-envelope-id.mjs

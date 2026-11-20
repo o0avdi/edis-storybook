@@ -33,8 +33,9 @@ export function BudgetSurface({ onAction }: { onAction?: (eventName: string, pay
         <p className="eyebrow">Composed example · deterministic sample, not a live model call</p>
         <h1 className="composition__title">One createSurface message, only Basic Catalog primitives</h1>
         <p className="lede">
-          No <code>BudgetDashboard</code> component exists: {total} component entries adapted from the showcase&rsquo;s{' '}
-          <code>budget-sample.ts</code>, rendered by the official SDK.
+          No <code>BudgetDashboard</code> component exists: this screen is {total} Basic Catalog components described by one{' '}
+          <code>createSurface</code> message and rendered by the official SDK. Each button click runs scripted sample logic
+          that returns a new message.
         </p>
         <ul className="chips" aria-label="Components used in this message">
           {counts.map(([name, count]) => (

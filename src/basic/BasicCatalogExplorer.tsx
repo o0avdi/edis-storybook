@@ -1,69 +1,35 @@
 import { useMemo, useState } from 'react';
 import pkg from '../../package.json';
 import { CopyButton, JsonView } from './JsonView';
-import { OFFICIAL_CATALOG, OFFICIAL_COMPONENT_NAMES, OFFICIAL_FUNCTION_NAMES, propertyRows } from './schema';
+import { OFFICIAL_CATALOG, OFFICIAL_COMPONENT_NAMES, propertyRows } from './schema';
 import { SchemaTable } from './SchemaTable';
 import { previewDocsHref } from './storyLinks';
 
-type Entry = { kind: 'component' | 'function'; name: string };
 type View = 'properties' | 'json';
 
 const SDK_VERSION = pkg.dependencies['@a2ui/web_core'];
-const ALL: Entry[] = [
-  ...OFFICIAL_COMPONENT_NAMES.map((name) => ({ kind: 'component' as const, name })),
-  ...OFFICIAL_FUNCTION_NAMES.map((name) => ({ kind: 'function' as const, name })),
-];
 
 /**
- * Browser for the OFFICIAL A2UI Basic Catalog, read from `basicCatalog.toJson()` in the installed SDK.
- * It never shows exporter output; see "Exporter / Generated catalogs" for that.
+ * Browser for the OFFICIAL A2UI Basic Catalog components, read from `basicCatalog.toJson()` in the installed SDK.
+ * The catalog's functions (formatting, validation, ...) are not listed here to keep the tour on components; they are
+ * still part of the unmodified raw catalog JSON at the bottom. This page never shows exporter output.
  */
 export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialSelection?: string }) {
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<Entry>(
-    ALL.find((entry) => entry.name === initialSelection) ?? { kind: 'component', name: 'Button' },
-  );
+  const [selected, setSelected] = useState(OFFICIAL_COMPONENT_NAMES.includes(initialSelection) ? initialSelection : 'Button');
   const [view, setView] = useState<View>('properties');
   const [showFull, setShowFull] = useState(false);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return needle ? ALL.filter((entry) => entry.name.toLowerCase().includes(needle)) : ALL;
+    return needle ? OFFICIAL_COMPONENT_NAMES.filter((name) => name.toLowerCase().includes(needle)) : OFFICIAL_COMPONENT_NAMES;
   }, [query]);
-  const components = visible.filter((entry) => entry.kind === 'component');
-  const functions = visible.filter((entry) => entry.kind === 'function');
-  const schema = selected.kind === 'component' ? OFFICIAL_CATALOG.components[selected.name] : OFFICIAL_CATALOG.functions[selected.name];
-  const href = selected.kind === 'component' ? previewDocsHref(selected.name) : undefined;
-  const required = propertyRows(selected.kind === 'component' ? schema : (schema?.properties?.args as typeof schema))
+  const schema = OFFICIAL_CATALOG.components[selected];
+  const href = previewDocsHref(selected);
+  const required = propertyRows(schema)
     .filter((row) => row.required && row.name !== 'component')
     .map((row) => row.name);
-
-  const renderGroup = (title: string, entries: Entry[], total: number) => (
-    <div className="explorer__group">
-      <h3 className="explorer__group-title">
-        {title} <span className="count">{entries.length === total ? total : `${entries.length} / ${total}`}</span>
-      </h3>
-      <ul role="listbox" aria-label={title}>
-        {entries.map((entry) => {
-          const isSelected = entry.kind === selected.kind && entry.name === selected.name;
-          return (
-            <li key={entry.kind + entry.name} role="presentation">
-              <button
-                type="button"
-                role="option"
-                aria-selected={isSelected}
-                className={isSelected ? 'selected' : ''}
-                onClick={() => setSelected(entry)}
-              >
-                <span>{entry.name}</span>
-                {entry.kind === 'component' && !previewDocsHref(entry.name) && <span className="pill">schema only</span>}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
+  const total = OFFICIAL_COMPONENT_NAMES.length;
 
   return (
     <section className="explorer">
@@ -72,18 +38,14 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
           <p className="eyebrow">Start here · official reference</p>
           <h1>A2UI Basic Catalog</h1>
           <p className="lede">
-            The vocabulary an agent may use to compose UI. Read live from <code>basicCatalog.toJson()</code> in the installed{' '}
-            <code>@a2ui/web_core@{SDK_VERSION}</code>.
+            The building blocks an agent can combine into an interface. Read live from <code>basicCatalog.toJson()</code> in
+            the installed <code>@a2ui/web_core@{SDK_VERSION}</code>.
           </p>
         </div>
         <dl className="stats">
           <div>
             <dt>Components</dt>
-            <dd>{OFFICIAL_COMPONENT_NAMES.length}</dd>
-          </div>
-          <div>
-            <dt>Functions</dt>
-            <dd>{OFFICIAL_FUNCTION_NAMES.length}</dd>
+            <dd>{total}</dd>
           </div>
         </dl>
       </header>
@@ -94,32 +56,49 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
       </p>
 
       <div className="explorer__grid">
-        <nav className="explorer__nav" aria-label="Catalog entries">
+        <nav className="explorer__nav" aria-label="Catalog components">
           <label className="search">
-            <span className="visually-hidden">Filter components and functions</span>
+            <span className="visually-hidden">Filter components</span>
             <input
               type="search"
-              placeholder="Filter, e.g. text, slider, format…"
+              placeholder="Filter components, e.g. text, slider…"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
-          {components.length > 0 && renderGroup('Components', components, OFFICIAL_COMPONENT_NAMES.length)}
-          {functions.length > 0 && renderGroup('Functions', functions, OFFICIAL_FUNCTION_NAMES.length)}
-          {visible.length === 0 && <p className="muted">No entries match “{query}”.</p>}
+          {visible.length > 0 ? (
+            <div className="explorer__group">
+              <h3 className="explorer__group-title">
+                Components <span className="count">{visible.length === total ? total : `${visible.length} / ${total}`}</span>
+              </h3>
+              <ul role="listbox" aria-label="Components">
+                {visible.map((name) => (
+                  <li key={name} role="presentation">
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={name === selected}
+                      className={name === selected ? 'selected' : ''}
+                      onClick={() => setSelected(name)}
+                    >
+                      <span>{name}</span>
+                      {!previewDocsHref(name) && <span className="pill">schema only</span>}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="muted">No components match “{query}”.</p>
+          )}
         </nav>
 
         <article className="explorer__detail">
           <header className="detail__header">
             <div>
-              <p className="eyebrow">{selected.kind === 'component' ? 'Component' : 'Function'}</p>
-              <h2>{selected.name}</h2>
+              <p className="eyebrow">Component</p>
+              <h2>{selected}</h2>
               {schema?.description && <p>{schema.description}</p>}
-              {selected.kind === 'function' && schema?.returnType !== undefined && (
-                <p>
-                  Returns <code>{String(schema.returnType)}</code>
-                </p>
-              )}
               <p className="muted">
                 Required: {required.length ? required.map((name) => <code key={name}>{name}</code>) : 'none beyond the discriminator'}
               </p>
@@ -129,9 +108,9 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
                 <a className="btn btn--primary" href={href} target="_top">
                   Live SDK preview →
                 </a>
-              ) : selected.kind === 'component' ? (
+              ) : (
                 <span className="muted small">No preview: needs external media</span>
-              ) : null}
+              )}
             </div>
           </header>
 
@@ -145,14 +124,9 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
           </div>
 
           {view === 'properties' ? (
-            <SchemaTable schema={selected.kind === 'component' ? schema : (schema?.properties?.args as typeof schema)} />
+            <SchemaTable schema={schema} />
           ) : (
-            <JsonView
-              value={schema}
-              title={`${selected.kind === 'component' ? 'components' : 'functions'}.${selected.name}`}
-              caption="SDK-authored"
-              maxHeight="60vh"
-            />
+            <JsonView value={schema} title={`components.${selected}`} caption="SDK-authored" maxHeight="60vh" />
           )}
         </article>
       </div>
@@ -161,7 +135,10 @@ export function BasicCatalogExplorer({ initialSelection = 'Button' }: { initialS
         <div className="full-catalog__bar">
           <div>
             <h2>Complete official catalog JSON</h2>
-            <p className="muted">The raw document an agent receives, unmodified. Also written to <code>a2ui-catalog/basic/catalog.json</code> by <code>npm run catalog:basic</code>.</p>
+            <p className="muted">
+              The raw SDK-authored document, unmodified. It also contains helper functions (formatting, validation) that
+              this component tour does not cover.
+            </p>
           </div>
           <div className="full-catalog__actions">
             <CopyButton text={JSON.stringify(OFFICIAL_CATALOG, null, 2)} label="Copy full catalog" />

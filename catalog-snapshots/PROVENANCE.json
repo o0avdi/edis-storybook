@@ -1,5 +1,5 @@
 {
-  "notice": "PRE-GENERATED SNAPSHOT. Copied from a real run; regenerate with \"npm run demo:export && npm run catalog:snapshot\".",
+  "notice": "PRE-GENERATED SNAPSHOT. Copied from a real run; regenerate with \"npm run catalog:all && npm run catalog:snapshot\".",
   "generatedBy": "scripts/snapshot-catalogs.mjs",
   "tools": {
     "storybook-a2ui": "git+ssh://git@github.com/o0avdi/a2ui-storybook-exporter.git#142dd7b4523ff3b37fabacd798b09fbc9de2dfdb",

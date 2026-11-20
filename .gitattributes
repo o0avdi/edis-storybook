@@ -1,0 +1,2 @@
+# Frozen EDIS demo examples: never convert line endings, so the bytes (and SHA-256) are identical on Windows and macOS.
+demo-examples/**/*.json -text

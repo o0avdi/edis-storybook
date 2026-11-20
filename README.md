@@ -1,5 +1,8 @@
 # A2UI Basic Catalog in Storybook
 
+> **Presenting at EDIS?** Read [`docs/EDIS_QUICK_GUIDE.md`](docs/EDIS_QUICK_GUIDE.md) (one page). Setup on a Mac:
+> [Running the EDIS Demo on macOS](#running-the-edis-demo-on-macos).
+
 **Purpose:** show how a small set of **official A2UI primitives** can be composed by an agent into a complete
 application (the November budget example from the capstone showcase), and how a team adds **its own** primitives
 through our Storybook → A2UI exporter.
@@ -15,25 +18,64 @@ Sources:
 
 ![Budget composition at 1920×1080](docs/screenshots/after/11-budget-1920x1080.png)
 
-## Quick start
+## Running the EDIS Demo on macOS
 
-Node.js 24 recommended (minimum 22.12), npm, Git. Commands are written for PowerShell and work the same in bash.
+Requires Node.js 24, npm and Git. Nothing else: no Gemini API key, no cloud credentials, no GCP login, no global
+Storybook install, no environment variables. After `npm ci`, everything below works without internet.
 
-```powershell
-npm ci
-npm run storybook          # http://localhost:6006
+**Run once (setup):**
+
+```bash
+git clone https://github.com/o0avdi/edis-storybook.git
+cd edis-storybook
+git checkout feat/edis-final-demo
+npm ci                       # installs exact versions from package-lock.json (a few minutes)
+npm run build-storybook      # static build the exporter reads (about a minute); skip if storybook-static/ exists
+npm run examples:verify      # optional: confirms the two frozen example files are intact
 ```
 
-Sidebar order (built for a two-minute demo):
+**Terminal 1: start Storybook.** This keeps running; stop it with `Ctrl+C`.
 
-1. **Start Here / Welcome**: the route and a table of where each JSON artifact comes from.
-2. **Start Here / Official Basic Catalog**: searchable explorer for the SDK's 18 components and 14 functions:
-   property tables (type, required, default, description), highlighted JSON, copy buttons, the complete raw catalog.
-3. **Basic Catalog / Content · Layout · Interactive**: 16 official components, each **rendered by the SDK** from a
+```bash
+npm run storybook            # http://localhost:6006
+```
+
+If port 6006 is busy, another Storybook is probably still running. Close it rather than switching ports.
+
+**Terminal 2: live exporter demo.** Runs, prints the result, and exits. Safe to repeat.
+
+```bash
+npm run export:demo          # writes demo-output/run-001/, then run-002/, ... never overwrites
+```
+
+**Frozen example JSON files** (open in VS Code; no command needed):
+
+```text
+demo-examples/01-single-component/catalog.json        ProgressIndicator only
+demo-examples/02-full-exported-catalog/catalog.json   StatusBadge, MetricLabel, ProgressIndicator
+```
+
+Optional terminal view of the same files: `npm run examples:show -- 1` (or `2`).
+
+All npm scripts are plain Node.js, so they behave the same on macOS, Linux and Windows. Rerun
+`npm run build-storybook` only if you change stories or components.
+
+## What is in the Storybook
+
+The sidebar has three sections:
+
+1. **Start Here**: *Welcome* (a plain-language introduction and demo path) and *Official Basic Catalog*, a searchable
+   explorer of the SDK's 18 components with property tables, official JSON and the complete raw catalog.
+2. **Basic Catalog / Content · Layout · Interactive**: 16 official components, each **rendered by the SDK** from a
    `createSurface` message, with purposeful variants, user-level controls, a live data-model readout and docs pages.
-4. **Composed Example / November Budget**: the composition, with a side-by-side `createSurface` JSON view.
-5. **Exporter / Generated Catalogs** and **Exporter / Source Primitives**: our exporter's output for new React
-   primitives (`StatusBadge`, `MetricLabel`, `ProgressIndicator`).
+3. **Composed Example / November Budget**: the composition, with a side-by-side `createSurface` JSON view.
+
+The exporter's Storybook pages (`StatusBadge`, `MetricLabel`, `ProgressIndicator` and a generated-catalog overview)
+are tagged `exporter-internal` and hidden from the sidebar with Storybook's `excludeFromSidebar` tag option
+(`.storybook/main.ts`). They are still built, reachable by URL (for example
+`?path=/docs/exporter-source-primitives-progressindicator--docs`) and listed in
+`storybook-static/manifests/components.json`, which is what the exporter reads. The exporter is demonstrated in a
+terminal instead.
 
 ## How the Basic Catalog stories work (and what they are not)
 
@@ -57,29 +99,34 @@ Sidebar order (built for a two-minute demo):
 
 ## Exporter demo
 
-The exporter needs a **static** build (`storybook-static/manifests/components.json`), even while `npm run storybook`
-is running. Prebuild before presenting so the live command is instant:
+The exporter reads a **static** build (`storybook-static/manifests/components.json`), even while `npm run storybook`
+is running, so build first: `npm run build-storybook`.
 
-```powershell
-# terminal 1
-npm run storybook
+**Live command for presentations:**
 
-# terminal 2
-npm run demo:export        # build-storybook → catalog:basic → catalog:inspect → catalog:export → catalog:verify
+```bash
+npm run export:demo
 ```
 
-**Clean live command** (one component, strict default policy, real CLI):
+`scripts/export-demo.mjs` runs the real, unmodified CLI with its strict defaults (no policy flags) on
+`ProgressIndicator` only. It prints the equivalent developer command:
 
-```powershell
-Remove-Item -Recurse -Force a2ui-catalog/live -ErrorAction SilentlyContinue   # --out must be new or empty
-npx storybook-a2ui export --storybook storybook-static --components ProgressIndicator `
-  --catalog-id https://o0avdi.github.io/edis-storybook/catalogs/progress-indicator/v1 --out a2ui-catalog/live
+```bash
+npx storybook-a2ui export --storybook storybook-static --components ProgressIndicator \
+  --catalog-id https://o0avdi.github.io/edis-storybook/catalogs/progress-indicator/v1 --out demo-output/run-001
 ```
 
-Or `npm run catalog:export:one`, which clears its output folder, prints that exact command, and runs it.
-Then show the JSON:
+It then reports success or failure and the output folder. Each run claims the next free `demo-output/run-NNN/` folder
+(gitignored), so earlier runs are never overwritten. It never writes to `demo-examples/`.
 
-```powershell
+**Frozen examples:** `demo-examples/` holds the two exported catalogs we present, copied from real exporter runs and
+protected by SHA-256 checks (`npm run examples:verify`). See [`demo-examples/README.md`](demo-examples/README.md).
+
+**Full pipeline (CI and maintenance):** `npm run catalog:all` builds Storybook, writes the official catalog, runs the
+inspect and both exports into `a2ui-catalog/`, and verifies everything, including the frozen examples. Other JSON
+views:
+
+```bash
 npm run catalog:show -- ProgressIndicator     # one exported component schema
 npm run catalog:show -- --extension           # complete multi-component exported catalog
 npm run catalog:show -- --report              # exported / blocked summary
@@ -150,13 +197,18 @@ See [`docs/EXPORTER_FINDINGS.md`](docs/EXPORTER_FINDINGS.md) and `node scripts/r
 | `npm run catalog:verify` | Provenance, validation and snapshot checks (see above) |
 | `npm run catalog:show -- …` | Presenter JSON viewer, labeled by provenance |
 | `npm run catalog:snapshot` | Refreshes `catalog-snapshots/` from `a2ui-catalog/` |
-| `npm run demo:export` | build → basic → inspect → export → verify |
+| `npm run catalog:all` | build → basic → inspect → export → verify (+ frozen examples check) |
+| `npm run export:demo` | **Live presentation export** of `ProgressIndicator` into a new `demo-output/run-NNN/` |
+| `npm run examples:verify` | Read-only SHA-256 and validity check of the frozen `demo-examples/` |
+| `npm run examples:show -- 1` | Prints a frozen example (`1` or `2`); without a number, lists both |
 | `npm run test:e2e` | Playwright tests against the static build (run `build-storybook` first) |
 | `npm run screenshots` | Same tests, also writing `docs/screenshots/after/` |
 
 End-to-end tests use the locally installed Google Chrome (no browser download). On CI they use Playwright's Chromium
 (`npx playwright install --with-deps chromium`). To test a running dev server instead, set the environment variable
-first: `$env:STORYBOOK_URL='http://localhost:6006'; npm run test:e2e`.
+first: `STORYBOOK_URL=http://localhost:6006 npm run test:e2e` (macOS/Linux) or
+`$env:STORYBOOK_URL='http://localhost:6006'; npm run test:e2e` (PowerShell). Locally the tests need Google Chrome
+installed; the demo itself does not.
 
 ## Verification
 
@@ -176,6 +228,8 @@ Screenshots: [`docs/screenshots/before/`](docs/screenshots/before) (original) an
 - `src/extensions/*.tsx`: the exportable React primitives (`StatusBadge`, `MetricLabel`, `ProgressIndicator`)
 - `src/exporter/*`: Storybook pages for exporter output (pre-generated snapshots)
 - `scripts/`: catalog sync, export wrapper, verify, snapshot, viewer, static server, finding reproducer
+- `scripts/export-demo.mjs`, `scripts/demo-examples.mjs`: the live `export:demo` command and the read-only frozen-example tools
+- `demo-examples/`: the two frozen exporter catalogs presented at EDIS
 - `tests/e2e/`: Playwright tests (Actions, controls, bindings, budget flow, explorer, exporter, all-stories smoke)
 
 ## Limitations
@@ -183,5 +237,5 @@ Screenshots: [`docs/screenshots/before/`](docs/screenshots/before) (original) an
 - The budget screen is deterministic sample logic, not a live LLM call; live prompting happens in the separate
   showcase app.
 - `Video` and `AudioPlayer` have no preview story (they need external media).
-- Storybook pages show the **pre-generated** exporter snapshot; fresh output is in `a2ui-catalog/` and the CLI.
+- The hidden exporter Storybook pages show the **pre-generated** snapshot in `catalog-snapshots/`; fresh output comes from the CLI.
 - The SDK renders TextField labels without a programmatic association to the input (see `docs/EXPORTER_FINDINGS.md`, section 2).

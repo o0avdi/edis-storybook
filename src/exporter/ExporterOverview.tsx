@@ -71,7 +71,7 @@ export function ExporterOverview() {
       <section className="exporter">
         <h1>Storybook → A2UI exporter</h1>
         <p className="provenance provenance--snapshot">
-          No pre-generated snapshot found in <code>catalog-snapshots/</code>. Run <code>npm run demo:export</code> and{' '}
+          No pre-generated snapshot found in <code>catalog-snapshots/</code>. Run <code>npm run catalog:all</code> and{' '}
           <code>npm run catalog:snapshot</code>, then reload.
         </p>
       </section>

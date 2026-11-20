@@ -68,7 +68,7 @@ test('official catalog explorer: search, property table, JSON, copy', async ({ p
   await shot('03-explorer-slider-json');
 
   await frame.getByPlaceholder(/Filter/).fill('format');
-  await expect(frame.getByRole('option')).toHaveCount(4); // formatString, formatNumber, formatCurrency, formatDate
+  await expect(frame.getByRole('option')).toHaveCount(0); // functions are not included in the visual component explorer
 });
 
 test('exporter page separates exporter output from the official catalog', async ({ page, shot }) => {
